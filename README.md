@@ -39,10 +39,9 @@ pi --write-permit "./docs,./openspec" -p "your prompt"
 
 ```
 /write-permit docs,openspec    # set allowlist for this session
+/write-permit off              # disable enforcement
 /write-permit reset            # fall back to .pi/settings.json
 ```
-
-> Enforcement is **mandatory** — `/write-permit off` is not supported. If no configuration is present, the extension does not enforce anything (no config = no block).
 
 ### 3. Project settings (`.pi/settings.json`)
 
@@ -58,7 +57,7 @@ Legacy format also supported:
 { "writeAllowDirs": ["./lib", "./test"] }
 ```
 
-If no configuration is present, the extension does **not** enforce anything (write-permit requires explicit config to activate). Enforcement is mandatory once configured — there is no off switch.
+If no configuration is present, the extension does **not** enforce anything.
 
 ## How bash detection works
 

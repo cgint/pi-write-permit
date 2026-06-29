@@ -41,7 +41,7 @@ export default function writePermit(pi: ExtensionAPI) {
 
 	pi.registerCommand("write-permit", {
 		description:
-			"Show or set the write/edit/bash allowlist. Usage: /write-permit docs,openspec | reset (CLI flag overrides; enforcement is mandatory)",
+			"Show or set the write/edit/bash allowlist. Usage: /write-permit docs,openspec | off | reset (CLI flag overrides)",
 		handler: async (args, ctx) => {
 			const argsTrimmed = (args ?? "").trim();
 			const flagDirs = parseFlagAllowedDirs(pi.getFlag("write-permit"));
@@ -68,7 +68,9 @@ export default function writePermit(pi: ExtensionAPI) {
 
 			const lower = argsTrimmed.toLowerCase();
 			if (lower === "off" || lower === "disable") {
-				if (ctx.hasUI) ctx.ui.notify("Write permit cannot be disabled. Use /write-permit reset to fall back to project settings.", "warning");
+				sessionOverride = { mode: "off" };
+				persistOverride();
+				if (ctx.hasUI) ctx.ui.notify("Write permit enforcement disabled for this session.", "info");
 				return;
 			}
 			if (lower === "reset") {
