@@ -1,0 +1,52 @@
+{
+  "name": "pi-write-permit",
+  "version": "0.1.0",
+  "description": "Pi extension that restricts write operations (write, edit, bash) to an allowlist of directories.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cgint/pi-write-permit.git"
+  },
+  "author": "cgint",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "pi-package",
+    "pi",
+    "coding-agent",
+    "extension",
+    "security",
+    "write-protection",
+    "bash"
+  ],
+  "license": "MIT",
+  "files": [
+    "index.ts",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "dependencies": {
+    "unbash": "^4.0.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": ">=0.74.0",
+    "@earendil-works/pi-coding-agent": ">=0.74.0",
+    "@earendil-works/pi-tui": "*",
+    "@sinclair/typebox": "*"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.74.0",
+    "@types/node": "^22.0.0",
+    "vitest": "^3.0.0"
+  }
+}
