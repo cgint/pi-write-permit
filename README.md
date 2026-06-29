@@ -68,6 +68,24 @@ The extension parses each bash command with `unbash` and walks the AST:
 3. **Dynamic paths**: Targets containing variables (`$VAR`), command substitution (`$(cmd)`), or arithmetic expansion are treated as unresolvable and **blocked** (fail-closed).
 4. **Always-safe paths**: `/dev/null`, `/dev/stdout`, `/dev/stderr` bypass the allowlist.
 
+## Docker + extension: complementary layers
+
+This extension can be used standalone (CLI flag / session command / settings) **or** alongside Docker volume restrictions for defence-in-depth:
+
+```bash
+docker run -p 4002:4002 \
+  -e GEMINI_API_KEY="your-api-key-here" \
+  -e SECRET_KEY_BASE=$(openssl rand -base64 48) \
+  -v $(pwd):/app/data:ro \
+  -v $(pwd)/genie-state/genie_output:/app/genie_output \
+  -v $(pwd)/genie-state/genie_tasks:/app/genie_tasks \
+  agent-coding-gui
+```
+
+The Docker `:ro` mount blocks writes at the **filesystem level** — the container cannot write to the workspace. But the filesystem layer gives no guidance to the LLM: it just sees an error and may try workarounds.
+
+This extension complements it by providing a **clear, structured error message** that tells the LLM *why* the write was blocked and *where* it is allowed. The LLM then knows the restriction is intentional (agreed with the user) and won't waste tokens searching for bypasses.
+
 ## Design decisions
 
 - **Fail-closed**: Parse errors, unexpected AST shapes, or dynamic/unresolvable paths → block.
