@@ -4,7 +4,7 @@ Pi extension that restricts write operations (`write`, `edit`, `bash`) to an all
 
 ## What it does
 
-Intercepts the `write`, `edit`, and `bash` tools and blocks operations targeting paths outside an explicit allowlist.
+Intercepts the `write`, `edit`, and `bash` tools and blocks **write** operations targeting paths outside an explicit allowlist. Read operations are unaffected.
 
 For `bash`, it uses [`unbash`](https://github.com/webpro-nl/unbash) — a zero-dependency TypeScript bash AST parser — to detect:
 
