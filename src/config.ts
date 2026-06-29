@@ -11,7 +11,6 @@ export type SettingsShape = {
 
 export type SessionOverride =
 	| { mode: "allow"; dirs: string[] }
-	| { mode: "off" }
 	| { mode: "reset" };
 
 export async function loadProjectAllowedDirs(projectCwd: string): Promise<string[] | null> {
@@ -45,8 +44,8 @@ export function formatResolvedList(resolvedDirs: string[]): string {
 }
 
 export type EffectivePolicy =
-	| { enforce: false; source: "none" | "session(off)"; dirs: null }
-	| { enforce: true; source: "flag" | "session" | "settings"; dirs: string[] };
+	| { enforce: true; source: "flag" | "session" | "settings"; dirs: string[] }
+	| { enforce: false; source: "none"; dirs: null };
 
 export async function getEffectivePolicy(
 	flagValue: unknown,
@@ -58,9 +57,6 @@ export async function getEffectivePolicy(
 		return { enforce: true, source: "flag", dirs: flagDirs };
 	}
 
-	if (sessionOverride?.mode === "off") {
-		return { enforce: false, source: "session(off)", dirs: null };
-	}
 	if (sessionOverride?.mode === "allow") {
 		return { enforce: true, source: "session", dirs: sessionOverride.dirs };
 	}
