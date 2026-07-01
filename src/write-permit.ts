@@ -55,7 +55,7 @@ export default function writePermit(pi: ExtensionAPI) {
 					return;
 				}
 				const resolved = await resolveAllowedDirs(policy.dirs, ctx.cwd);
-				ctx.ui.notify(`Write permit enforcing (source: ${policy.source}).\nAllowed under:\n${formatResolvedList(resolved)}`, "info");
+				ctx.ui.notify(`Write permit enforcing (source: ${policy.source}).\nAllowed under:\n${formatResolvedList(resolved)}\n\nTreat denied writes as policy boundaries, not technical failures to route around.`, "info");
 				return;
 			}
 
@@ -86,7 +86,7 @@ export default function writePermit(pi: ExtensionAPI) {
 			persistOverride();
 			if (ctx.hasUI) {
 				const resolved = await resolveAllowedDirs(dirs, ctx.cwd);
-				ctx.ui.notify(`Write permit set for this session.\nAllowed under:\n${formatResolvedList(resolved)}`, "info");
+				ctx.ui.notify(`Write permit set for this session.\nAllowed under:\n${formatResolvedList(resolved)}\n\nTreat denied writes as policy boundaries, not technical failures to route around.`, "info");
 			}
 		},
 	});
@@ -128,7 +128,7 @@ export default function writePermit(pi: ExtensionAPI) {
 			if (ok) return undefined;
 
 			const policyMsg = `The user has set guard rails for this task — writes must stay under these directories:\n` + resolvedAllowed.map(d => "  " + d).join("\n");
-			const reason = `PERMIT DENIED: Write operation to '${targetPathRaw}' is outside the allowed directories.\n\n` + policyMsg + `\n\nIf these guard rails completely block you from doing your job, come back to the user for clarification. This restriction exists because task descriptions or goals may be ambiguous - the guard rail prevents unauthorized writes that could stem from unclear intent.`;
+			const reason = `PERMIT DENIED: Write operation to '${targetPathRaw}' is outside the allowed directories.\n\n` + policyMsg + `\n\nDo not attempt to work around this block with another tool, bash command, embedded interpreter, heredoc, symlink, temp file, or alternative path. If these guard rails block the intended work, stop and ask the user to clarify the target location or update the write permit. This restriction exists because task descriptions or goals may be ambiguous - the guard rail prevents unauthorized writes that could stem from unclear intent.`;
 			return { block: true, reason };
 		}
 
@@ -179,7 +179,7 @@ export default function writePermit(pi: ExtensionAPI) {
 		if (blocked.length > 0) {
 			const policyMsg = `The user has set guard rails for this task — writes must stay under these directories:\n` + resolvedAllowed.map(d => "  " + d).join("\n");
 			const blockedList = blocked.map(p => "  " + p).join("\n");
-			const reason = `PERMIT DENIED: The bash command writes to:\n${blockedList}\n\n` + policyMsg + `\n\nIf these guard rails completely block you from doing your job, come back to the user for clarification. This restriction exists because task descriptions or goals may be ambiguous - the guard rail prevents unauthorized writes that could stem from unclear intent.`;
+			const reason = `PERMIT DENIED: The bash command writes to:\n${blockedList}\n\n` + policyMsg + `\n\nDo not attempt to work around this block with another tool, bash command, embedded interpreter, heredoc, symlink, temp file, or alternative path. If these guard rails block the intended work, stop and ask the user to clarify the target location or update the write permit. This restriction exists because task descriptions or goals may be ambiguous - the guard rail prevents unauthorized writes that could stem from unclear intent.`;
 			return { block: true, reason };
 		}
 
