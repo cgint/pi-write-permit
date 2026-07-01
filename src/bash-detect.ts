@@ -69,14 +69,9 @@ export function extractWriteTargets(ast: Script): WriteFinding[] {
 			}
 		}
 
-		// Check redirects on nested Command (Statement wraps Command)
+		// Recurse into nested command nodes (Statement wraps Command/Pipeline/AndOr/etc.)
 		if ("command" in node && node.command && typeof node.command === "object") {
-			const cmd = node.command as { redirects?: Redirect[] };
-			if (cmd.redirects && Array.isArray(cmd.redirects)) {
-				for (const redirect of cmd.redirects as Redirect[]) {
-					processRedirect(redirect);
-				}
-			}
+			walkRedirects(node.command as Node);
 		}
 
 		if ("commands" in node && Array.isArray((node as any).commands)) {
@@ -113,15 +108,9 @@ export function extractWriteTargets(ast: Script): WriteFinding[] {
 			}
 		}
 
-		// Check nested Command inside Statement
+		// Recurse into nested command nodes (Statement wraps Command/Pipeline/AndOr/etc.)
 		if ("command" in node && node.command && typeof node.command === "object") {
-			const nested = node.command as Command;
-			if (nested.type === "Command" && nested.name) {
-				const targets = extractWriterCommandTargets(nested);
-				for (const t of targets) {
-					findings.push({ path: t, source: "writer_command", commandName: nested.name.value });
-				}
-			}
+			walkWriterCommands(node.command as Node);
 		}
 
 		if ("commands" in node && Array.isArray((node as any).commands)) {
@@ -154,6 +143,8 @@ const WRITER_COMMANDS: WriterCommandSpec[] = [
 	{ name: "touch", extract: (args) => args.map((w) => w.value) },
 	{ name: "mkdir", extract: (args) => args.map((w) => w.value) },
 	{ name: "rmdir", extract: (args) => args.map((w) => w.value) },
+	{ name: "rm", extract: (args) => args.map((w) => w.value) },
+	{ name: "unlink", extract: (args) => args.map((w) => w.value) },
 	{ name: "cp", extract: (args) => (args.length >= 2 ? [args[args.length - 1].value] : []) },
 	{ name: "mv", extract: (args) => (args.length >= 2 ? [args[args.length - 1].value] : []) },
 	{ name: "ln", extract: (args) => (args.length >= 2 ? [args[args.length - 1].value] : []) },
