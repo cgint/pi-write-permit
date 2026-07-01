@@ -9,7 +9,7 @@ Intercepts the `write`, `edit`, and `bash` tools and blocks **write** operations
 For `bash`, it uses [`unbash`](https://github.com/webpro-nl/unbash) — a zero-dependency TypeScript bash AST parser — to detect:
 
 - **Redirect writes**: `>`, `>>`, `<>`, `>|`, `&>`, `&>>`
-- **Writer commands**: `touch`, `cp`, `mv`, `tee`, `mkdir`, `rmdir`, `install`, `dd`, `rsync`, `tar`, `ln`
+- **Writer commands**: `touch`, `cp`, `mv`, `tee`, `mkdir`, `rmdir`, `rm`, `unlink`, `install`, `dd`, `rsync`, `tar`, `ln`
 
 ## Installation
 
