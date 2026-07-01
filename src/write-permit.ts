@@ -127,8 +127,8 @@ export default function writePermit(pi: ExtensionAPI) {
 			const ok = resolvedAllowed.some((dir) => isPathInside(canonicalTarget, dir));
 			if (ok) return undefined;
 
-			const policyMsg = `You and the user have agreed on a write-permit policy - a collaboration guard rail that must not be bypassed. Writes may only target these directories:\n` + resolvedAllowed.map(d => "  " + d).join("\n");
-			const reason = `PERMIT DENIED: Write operation to '${targetPathRaw}' is outside the allowed directories.\n\n` + policyMsg + `\n\nIf you are unsure where a file should be written, ask the user for guidance instead of trying alternative paths. This restriction exists because task descriptions or goals may be ambiguous - the guard rail prevents unauthorized writes that could stem from unclear intent.`;
+			const policyMsg = `The user has set guard rails for this task — writes must stay under these directories:\n` + resolvedAllowed.map(d => "  " + d).join("\n");
+			const reason = `PERMIT DENIED: Write operation to '${targetPathRaw}' is outside the allowed directories.\n\n` + policyMsg + `\n\nIf these guard rails completely block you from doing your job, come back to the user for clarification. This restriction exists because task descriptions or goals may be ambiguous - the guard rail prevents unauthorized writes that could stem from unclear intent.`;
 			return { block: true, reason };
 		}
 
@@ -177,9 +177,9 @@ export default function writePermit(pi: ExtensionAPI) {
 		}
 
 		if (blocked.length > 0) {
-			const policyMsg = `You and the user have agreed on a write-permit policy - a collaboration guard rail that must not be bypassed. Writes may only target these directories:\n` + resolvedAllowed.map(d => "  " + d).join("\n");
+			const policyMsg = `The user has set guard rails for this task — writes must stay under these directories:\n` + resolvedAllowed.map(d => "  " + d).join("\n");
 			const blockedList = blocked.map(p => "  " + p).join("\n");
-			const reason = `PERMIT DENIED: The bash command writes to:\n${blockedList}\n\n` + policyMsg + `\n\nIf you are unsure where a file should be written, ask the user for guidance instead of trying alternative paths. This restriction exists because task descriptions or goals may be ambiguous - the guard rail prevents unauthorized writes that could stem from unclear intent.`;
+			const reason = `PERMIT DENIED: The bash command writes to:\n${blockedList}\n\n` + policyMsg + `\n\nIf these guard rails completely block you from doing your job, come back to the user for clarification. This restriction exists because task descriptions or goals may be ambiguous - the guard rail prevents unauthorized writes that could stem from unclear intent.`;
 			return { block: true, reason };
 		}
 
