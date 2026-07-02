@@ -68,6 +68,10 @@ The extension parses each bash command with `unbash` and walks the AST:
 3. **Dynamic paths**: Targets containing variables (`$VAR`), command substitution (`$(cmd)`), or arithmetic expansion are treated as unresolvable and **blocked** (fail-closed).
 4. **Always-safe paths**: `/dev/null`, `/dev/stdout`, `/dev/stderr` bypass the allowlist.
 
+## Agent visibility
+
+When the allowlist is set (via `/write-permit` or session restore), the extension injects the permit information into the conversation history using `pi.sendMessage` with `triggerTurn: false`. This makes the allowlist visible to the agent on the next turn **without** triggering an unnecessary agent turn. The same information is also shown via `ctx.ui.notify` for the user. When a write is blocked, the `reason` field in the block response includes the full allowlist so the agent sees it in the error context.
+
 ## Docker + extension: complementary layers
 
 This extension can be used standalone (CLI flag / session command / settings) **or** alongside Docker volume restrictions for defence-in-depth:

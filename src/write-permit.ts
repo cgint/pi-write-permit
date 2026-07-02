@@ -70,14 +70,26 @@ export default function writePermit(pi: ExtensionAPI) {
 			if (lower === "off" || lower === "disable") {
 				sessionOverride = { mode: "off" };
 				persistOverride();
-				if (ctx.hasUI) ctx.ui.notify("Write permit enforcement disabled for this session.", "info");
+				if (ctx.hasUI) {
+					ctx.ui.notify("Write permit enforcement disabled for this session.", "info");
+					await pi.sendMessage(
+						{ customType: PERSIST_TYPE, content: "Write permit enforcement disabled for this session. Treat denied writes as policy boundaries, not technical failures to route around.", display: true },
+						{ triggerTurn: false },
+					);
+				}
 				return;
 			}
 			if (lower === "reset") {
 				sessionOverride = { mode: "reset" };
 				persistOverride();
 				sessionOverride = null;
-				if (ctx.hasUI) ctx.ui.notify("Write permit reset (now falls back to .pi/settings.json if present).", "info");
+				if (ctx.hasUI) {
+					ctx.ui.notify("Write permit reset (now falls back to .pi/settings.json if present).", "info");
+					await pi.sendMessage(
+						{ customType: PERSIST_TYPE, content: "Write permit reset (now falls back to .pi/settings.json if present). Treat denied writes as policy boundaries, not technical failures to route around.", display: true },
+						{ triggerTurn: false },
+					);
+				}
 				return;
 			}
 
@@ -86,7 +98,12 @@ export default function writePermit(pi: ExtensionAPI) {
 			persistOverride();
 			if (ctx.hasUI) {
 				const resolved = await resolveAllowedDirs(dirs, ctx.cwd);
-				ctx.ui.notify(`Write permit set for this session.\nAllowed under:\n${formatResolvedList(resolved)}\n\nTreat denied writes as policy boundaries, not technical failures to route around.`, "info");
+				const list = formatResolvedList(resolved);
+				ctx.ui.notify(`Write permit set for this session.\nAllowed under:\n${list}\n\nTreat denied writes as policy boundaries, not technical failures to route around.`, "info");
+				await pi.sendMessage(
+					{ customType: PERSIST_TYPE, content: `Write permit set for this session.\nAllowed under:\n${list}\n\nTreat denied writes as policy boundaries, not technical failures to route around.`, display: true },
+					{ triggerTurn: false },
+				);
 			}
 		},
 	});
@@ -100,9 +117,23 @@ export default function writePermit(pi: ExtensionAPI) {
 		if (!last?.data) return;
 		if (last.data.mode === "reset") {
 			sessionOverride = null;
+			if (ctx.hasUI) {
+				await pi.sendMessage(
+					{ customType: PERSIST_TYPE, content: "Write permit reset (now falls back to .pi/settings.json if present). Treat denied writes as policy boundaries, not technical failures to route around.", display: true },
+					{ triggerTurn: false },
+				);
+			}
 			return;
 		}
 		sessionOverride = last.data;
+		if (ctx.hasUI && last.data.mode === "allow") {
+			const resolved = await resolveAllowedDirs(last.data.dirs, ctx.cwd);
+			const list = formatResolvedList(resolved);
+			await pi.sendMessage(
+				{ customType: PERSIST_TYPE, content: `Write permit set for this session.\nAllowed under:\n${list}\n\nTreat denied writes as policy boundaries, not technical failures to route around.`, display: true },
+				{ triggerTurn: false },
+			);
+		}
 	});
 
 	// Enforcement
